@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Cripton Wallet</title>
+
+<script src="https://unpkg.com/thirdweb@latest/dist/thirdweb.min.js"></script>
+
+<script>
+
+const client = new thirdweb.ThirdwebClient({
+clientId:"490ad1926c095ab8ebaf8142ab1a7584"
+});
+
+</script>
+
+</head>
+
+<body style="font-family:Arial;text-align:center;margin-top:100px;background:#0f172a;color:white;">
+
+<h1>Cripton Wallet</h1>
+
+<button onclick="connect()" style="padding:10px 20px;font-size:18px;">Connect Wallet</button>
+
+<p id="wallet"></p>
+
+<script>
+
+async function connect(){
+
+if(!window.ethereum){
+alert("Install Metamask")
+return
+}
+
+const accounts = await window.ethereum.request({
+method:"eth_requestAccounts"
+})
+
+document.getElementById("wallet").innerText =
+"Wallet connected: " + accounts[0]
+
+}
+
+</script>
+
+</body>
+</html>
