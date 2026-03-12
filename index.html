@@ -1,35 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <title>Cripton Wallet</title>
-<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+
+<script src="https://unpkg.com/thirdweb@latest/dist/browser.min.js"></script>
 
 <style>
+
 body{
 font-family:Arial;
 background:#0f172a;
 color:white;
 text-align:center;
-margin-top:100px;
-}
-
-button{
-padding:12px 25px;
-background:#3b82f6;
-border:none;
-border-radius:6px;
-color:white;
-font-size:16px;
-cursor:pointer;
+margin-top:80px;
 }
 
 .card{
 background:#1e293b;
-padding:30px;
-width:400px;
+width:420px;
 margin:auto;
+padding:40px;
 border-radius:10px;
 }
+
+button{
+padding:12px 25px;
+margin:8px;
+font-size:16px;
+background:#2563eb;
+border:none;
+border-radius:8px;
+color:white;
+cursor:pointer;
+}
+
+input{
+padding:10px;
+width:80%;
+margin:8px;
+border-radius:6px;
+border:none;
+}
+
 </style>
 
 </head>
@@ -42,37 +55,82 @@ border-radius:10px;
 
 <button onclick="connectWallet()">Connect Wallet</button>
 
-<h3 id="address"></h3>
-<h2 id="balance"></h2>
+<p id="address"></p>
+<p id="balance"></p>
+
+<hr>
+
+<h3>Send Crypto</h3>
+
+<input id="to" placeholder="Recipient address">
+
+<input id="amount" placeholder="Amount ETH">
+
+<button onclick="send()">Send</button>
+
+<hr>
+
+<h3>Receive</h3>
+
+<p>Share your wallet address to receive crypto</p>
 
 </div>
 
 <script>
 
+const clientId="490ad1926c095ab8ebaf8142ab1a7584"
+
+let walletAddress
+
 async function connectWallet(){
 
-if(typeof window.ethereum === "undefined"){
-alert("Install MetaMask");
-return;
+if(!window.ethereum){
+
+alert("Install MetaMask")
+
+return
+
 }
 
-const provider = new ethers.providers.Web3Provider(window.ethereum);
+await window.ethereum.request({method:"eth_requestAccounts"})
 
-await provider.send("eth_requestAccounts",[]);
+const provider=new ethers.providers.Web3Provider(window.ethereum)
 
-const signer = provider.getSigner();
+const signer=provider.getSigner()
 
-const address = await signer.getAddress();
+walletAddress=await signer.getAddress()
 
-document.getElementById("address").innerText =
-"Wallet: " + address;
+document.getElementById("address").innerText="Wallet: "+walletAddress
 
-const balance = await provider.getBalance(address);
+const balance=await provider.getBalance(walletAddress)
 
-const ethBalance = ethers.utils.formatEther(balance);
+const eth=ethers.utils.formatEther(balance)
 
-document.getElementById("balance").innerText =
-"Balance: " + ethBalance + " ETH";
+document.getElementById("balance").innerText="Balance: "+eth+" ETH"
+
+}
+
+async function send(){
+
+const to=document.getElementById("to").value
+
+const amount=document.getElementById("amount").value
+
+const provider=new ethers.providers.Web3Provider(window.ethereum)
+
+const signer=provider.getSigner()
+
+const tx=await signer.sendTransaction({
+
+to:to,
+
+value:ethers.utils.parseEther(amount)
+
+})
+
+await tx.wait()
+
+alert("Transaction sent")
 
 }
 
