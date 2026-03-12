@@ -1,45 +1,78 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-
 <title>Cripton Wallet</title>
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
 
-<script src="https://unpkg.com/thirdweb@latest/dist/thirdweb.min.js"></script>
+<style>
+body{
+font-family:Arial;
+background:#0f172a;
+color:white;
+text-align:center;
+margin-top:100px;
+}
 
-<script>
+button{
+padding:12px 25px;
+background:#3b82f6;
+border:none;
+border-radius:6px;
+color:white;
+font-size:16px;
+cursor:pointer;
+}
 
-const client = new thirdweb.ThirdwebClient({
-clientId:"490ad1926c095ab8ebaf8142ab1a7584"
-});
-
-</script>
+.card{
+background:#1e293b;
+padding:30px;
+width:400px;
+margin:auto;
+border-radius:10px;
+}
+</style>
 
 </head>
 
-<body style="font-family:Arial;text-align:center;margin-top:100px;background:#0f172a;color:white;">
+<body>
+
+<div class="card">
 
 <h1>Cripton Wallet</h1>
 
-<button onclick="connect()" style="padding:10px 20px;font-size:18px;">Connect Wallet</button>
+<button onclick="connectWallet()">Connect Wallet</button>
 
-<p id="wallet"></p>
+<h3 id="address"></h3>
+<h2 id="balance"></h2>
+
+</div>
 
 <script>
 
-async function connect(){
+async function connectWallet(){
 
-if(!window.ethereum){
-alert("Install Metamask")
-return
+if(typeof window.ethereum === "undefined"){
+alert("Install MetaMask");
+return;
 }
 
-const accounts = await window.ethereum.request({
-method:"eth_requestAccounts"
-})
+const provider = new ethers.providers.Web3Provider(window.ethereum);
 
-document.getElementById("wallet").innerText =
-"Wallet connected: " + accounts[0]
+await provider.send("eth_requestAccounts",[]);
+
+const signer = provider.getSigner();
+
+const address = await signer.getAddress();
+
+document.getElementById("address").innerText =
+"Wallet: " + address;
+
+const balance = await provider.getBalance(address);
+
+const ethBalance = ethers.utils.formatEther(balance);
+
+document.getElementById("balance").innerText =
+"Balance: " + ethBalance + " ETH";
 
 }
 
