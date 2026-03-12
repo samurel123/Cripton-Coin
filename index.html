@@ -1,16 +1,12 @@
-
+HTML
+Copiar código
 <!DOCTYPE html>
 <html>
 
 <head>
-
-<meta charset="UTF-8">
-
 <title>Cripton Wallet</title>
 
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
-
-<script src="https://unpkg.com/thirdweb@latest/dist/browser.min.js"></script>
 
 <style>
 
@@ -19,7 +15,7 @@ font-family:Arial;
 background:#0f172a;
 color:white;
 text-align:center;
-margin-top:100px;
+margin-top:80px;
 }
 
 .card{
@@ -28,26 +24,31 @@ width:420px;
 margin:auto;
 padding:40px;
 border-radius:12px;
-box-shadow:0 0 20px rgba(0,0,0,0.5);
 }
 
 button{
 padding:12px 25px;
 margin:10px;
-font-size:16px;
-background:#2563eb;
 border:none;
 border-radius:8px;
+background:#2563eb;
 color:white;
+font-size:16px;
 cursor:pointer;
 }
 
 input{
 padding:10px;
+margin:10px;
 width:80%;
-margin:8px;
 border-radius:6px;
 border:none;
+}
+
+select{
+padding:10px;
+margin:10px;
+border-radius:6px;
 }
 
 </style>
@@ -62,11 +63,20 @@ border:none;
 
 <button onclick="connectWallet()">Connect Wallet</button>
 
+<br>
+
+<select id="network" onchange="switchNetwork()">
+
+<option value="0x1">Ethereum</option>
+<option value="0x89">Polygon</option>
+<option value="0x38">BNB Chain</option>
+<option value="0xa4b1">Arbitrum</option>
+<option value="0xa">Optimism</option>
+
+</select>
+
 <p id="wallet"></p>
-
 <p id="balance"></p>
-
-<hr>
 
 <h3>Send Crypto</h3>
 
@@ -76,21 +86,11 @@ border:none;
 
 <br>
 
-<button onclick="send()">Send</button>
-
-<hr>
-
-<h3>Receive</h3>
-
-<p>Share your wallet address to receive crypto</p>
+<button onclick="sendCrypto()">Send</button>
 
 </div>
 
 <script>
-
-const client = new thirdweb.ThirdwebClient({
-clientId: "490ad1926c095ab8ebaf8142ab1a7584"
-});
 
 let provider;
 let signer;
@@ -106,7 +106,7 @@ return;
 
 }
 
-await window.ethereum.request({ method: "eth_requestAccounts" });
+await ethereum.request({ method: 'eth_requestAccounts' });
 
 provider = new ethers.providers.Web3Provider(window.ethereum);
 
@@ -117,6 +117,12 @@ userAddress = await signer.getAddress();
 document.getElementById("wallet").innerText =
 "Wallet: " + userAddress;
 
+getBalance();
+
+}
+
+async function getBalance(){
+
 const balance = await provider.getBalance(userAddress);
 
 document.getElementById("balance").innerText =
@@ -124,19 +130,11 @@ document.getElementById("balance").innerText =
 
 }
 
-async function send(){
+async function sendCrypto(){
 
 const to = document.getElementById("to").value;
 
 const amount = document.getElementById("amount").value;
-
-if(!signer){
-
-alert("Connect wallet first");
-
-return;
-
-}
 
 const tx = await signer.sendTransaction({
 
@@ -146,9 +144,21 @@ value: ethers.utils.parseEther(amount)
 
 });
 
-await tx.wait();
+alert("Transaction Sent");
 
-alert("Transaction sent");
+}
+
+async function switchNetwork(){
+
+const chainId = document.getElementById("network").value;
+
+await ethereum.request({
+
+method: 'wallet_switchEthereumChain',
+
+params: [{ chainId: chainId }]
+
+});
 
 }
 
