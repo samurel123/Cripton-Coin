@@ -2,33 +2,36 @@
 <html>
 
 <head>
+
 <meta charset="UTF-8">
 
 <title>Cripton Wallet</title>
 
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
 
+<script src="https://unpkg.com/thirdweb@latest/dist/browser.min.js"></script>
+
 <style>
 
 body{
-background:#0f172a;
 font-family:Arial;
+background:#0f172a;
 color:white;
 text-align:center;
-margin-top:80px;
+margin-top:100px;
 }
 
 .card{
 background:#1e293b;
-padding:40px;
 width:420px;
 margin:auto;
+padding:40px;
 border-radius:12px;
 box-shadow:0 0 20px rgba(0,0,0,0.5);
 }
 
 button{
-padding:12px 30px;
+padding:12px 25px;
 margin:10px;
 font-size:16px;
 background:#2563eb;
@@ -59,6 +62,7 @@ border:none;
 <button onclick="connectWallet()">Connect Wallet</button>
 
 <p id="wallet"></p>
+
 <p id="balance"></p>
 
 <hr>
@@ -83,59 +87,72 @@ border:none;
 
 <script>
 
-let provider
-let signer
-let address
+const client = new thirdweb.ThirdwebClient({
+clientId: "490ad1926c095ab8ebaf8142ab1a7584"
+});
+
+let provider;
+let signer;
+let userAddress;
 
 async function connectWallet(){
 
 if(!window.ethereum){
 
-alert("Install MetaMask")
+alert("Install MetaMask");
 
-return
+return;
 
 }
 
-await window.ethereum.request({ method:'eth_requestAccounts' })
+await window.ethereum.request({ method: "eth_requestAccounts" });
 
-provider=new ethers.providers.Web3Provider(window.ethereum)
+provider = new ethers.providers.Web3Provider(window.ethereum);
 
-signer=provider.getSigner()
+signer = provider.getSigner();
 
-address=await signer.getAddress()
+userAddress = await signer.getAddress();
 
-document.getElementById("wallet").innerText=
-"Wallet: "+address
+document.getElementById("wallet").innerText =
+"Wallet: " + userAddress;
 
-const balance=await provider.getBalance(address)
+const balance = await provider.getBalance(userAddress);
 
-document.getElementById("balance").innerText=
-"Balance: "+ethers.utils.formatEther(balance)+" ETH"
+document.getElementById("balance").innerText =
+"Balance: " + ethers.utils.formatEther(balance) + " ETH";
 
 }
 
 async function send(){
 
-const to=document.getElementById("to").value
+const to = document.getElementById("to").value;
 
-const amount=document.getElementById("amount").value
+const amount = document.getElementById("amount").value;
 
-const tx=await signer.sendTransaction({
+if(!signer){
 
-to:to,
+alert("Connect wallet first");
 
-value:ethers.utils.parseEther(amount)
+return;
 
-})
+}
 
-await tx.wait()
+const tx = await signer.sendTransaction({
 
-alert("Transaction Sent")
+to: to,
+
+value: ethers.utils.parseEther(amount)
+
+});
+
+await tx.wait();
+
+alert("Transaction sent");
 
 }
 
 </script>
 
 </body>
+
 </html>
